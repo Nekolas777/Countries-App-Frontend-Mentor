@@ -1,0 +1,132 @@
+<template>
+  <header :class="['h-20 bg-secondary sticky w-full top-0 z-50', hasScrolled ? 'scrolled' : 'no-scrolled']">
+    <div class="container h-full flex items-center justify-between">
+      <button type="button" class="logo-container" @click="router.push('/')">
+        <h1 class="text-2xl text-primary font-extrabold">Where in the world?</h1>
+      </button>
+      <button @click="toggleDropdown" class="relative border-[1px] border-transparent hover:border-slate-400/80 transition-all duration-200 ease-linear rounded-xl 
+        flex items-center gap-3 py-1.5 px-2.5">
+        <template v-if="themeState === 'system'">
+          <SystemIcon />
+        </template>
+        <template v-else-if="themeState === 'light'">
+          <LightIcon />
+        </template>
+        <template v-else-if="themeState === 'dark'">
+          <DarkIcon />
+        </template>
+        <span class="font-bold text-primary">{{ capitalizeText(themeState) }}</span>
+        <div :class="['dropdown-content', { active: isDropdownActive }]">
+          <li @click="changeThemeState('light')" href="#" class="dropdown-link">Light</li>
+          <li @click="changeThemeState('dark')" href="#" class="dropdown-link">Dark</li>
+          <li @click="changeThemeState('system')" href="#" class="dropdown-link">System</li>
+        </div>
+      </button>
+    </div>
+  </header>
+</template>
+
+<script setup lang="ts">
+import DarkIcon from '@/assets/icons/DarkIcon.vue';
+import LightIcon from '@/assets/icons/LightIcon.vue';
+import SystemIcon from '@/assets/icons/SystemIcon.vue';
+import { capitalizeText } from '@/features/countries/helpers/format-text';
+import router from '@/router/router';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
+
+const hasScrolled = ref<boolean>(false);
+const isDropdownActive = ref<boolean>(false);
+const themeState = ref<string>('system');
+
+const changeThemeState = (theme: string) => {
+  themeState.value = theme;
+  console.log(themeState.value);
+};
+
+const handleScroll = () => {
+  hasScrolled.value = window.scrollY > 0;
+};
+
+const toggleDropdown = () => {
+  event?.stopPropagation();
+  isDropdownActive.value = !isDropdownActive.value;
+};
+
+const handleClickOutside = (event: MouseEvent) => {
+  console.log('clickeando afuera' + event.target);
+  const dropdown = document.querySelector('.dropdown-content');
+  if (isDropdownActive.value && dropdown && !dropdown.contains(event.target as Node)) {
+    isDropdownActive.value = false;
+  }
+};
+
+watch(themeState, (newTheme) => {
+  document.documentElement.setAttribute('data-theme', newTheme);
+});
+
+onMounted(() => {
+  window.addEventListener('scroll', handleScroll);
+  document.addEventListener('click', handleClickOutside);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('scroll', handleScroll);
+  document.removeEventListener('click', handleClickOutside);
+});
+</script>
+
+<style scoped>
+.scrolled {
+  transition: all .5s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
+}
+
+.no-scrolled {
+  transition: height .5s;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0);
+}
+
+.dropdown-content {
+  overflow: hidden;
+  position: absolute;
+  top: 3rem;
+  left: 0;
+  width: 100%;
+  visibility: hidden;
+  opacity: 0;
+  transform: scaleY(0);
+  transform-origin: top;
+  border-radius: 0.375rem;
+  background: #fff;
+  box-shadow: 0 10px 15px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  z-index: 999;
+}
+
+.dropdown-content.active {
+  opacity: 1;
+  transform: scaleY(1);
+  visibility: visible;
+  transition: all 0.3s ease;
+}
+
+.dropdown-link {
+  text-align: start;
+  display: block;
+  padding: 0.5rem 1rem;
+  font-size: 0.95rem;
+  line-height: 1.25rem;
+  color: #4a5568;
+}
+
+.dropdown-link:hover {
+  color: #111827;
+  background: #f1f1f1;
+}
+
+.dropdown.active .dropdown-content {
+  opacity: 1;
+  transform: scaleY(1);
+  visibility: visible;
+}
+</style>
