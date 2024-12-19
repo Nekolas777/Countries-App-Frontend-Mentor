@@ -25,6 +25,7 @@
 
 * {
   list-style-type: none;
+  transition: background-color 0.3s ease;
 }
 
 body {
