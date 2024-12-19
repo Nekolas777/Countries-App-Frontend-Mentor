@@ -30,7 +30,7 @@
 import DarkIcon from '@/assets/icons/DarkIcon.vue';
 import LightIcon from '@/assets/icons/LightIcon.vue';
 import SystemIcon from '@/assets/icons/SystemIcon.vue';
-import { capitalizeText } from '@/features/countries/helpers/format-text';
+import { capitalizeText } from '@/features/countries/utils/helpers/format-text';
 import router from '@/router/router';
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 
@@ -40,7 +40,6 @@ const themeState = ref<string>('system');
 
 const changeThemeState = (theme: string) => {
   themeState.value = theme;
-  console.log(themeState.value);
 };
 
 const handleScroll = () => {
@@ -77,12 +76,12 @@ onUnmounted(() => {
 
 <style scoped>
 .scrolled {
-  transition: all .5s ease;
+  transition: box-shadow .5s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.25);
 }
 
 .no-scrolled {
-  transition: height .5s;
+  transition: box-shadow .5s ease;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0);
 }
 
