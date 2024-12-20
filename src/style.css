@@ -25,7 +25,7 @@
 
 * {
   list-style-type: none;
-  transition: background-color 0.3s ease;
+  transition: background 0.2s linear;
 }
 
 body {
@@ -45,7 +45,7 @@ body {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.25s ease;
+  transition: opacity 0.2s ease;
 }
 
 .fade-enter-from,

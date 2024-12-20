@@ -27,15 +27,15 @@
           }" class="h-[200px] object-fill w-full" width="100%" alt="Country Flag" />
 
           <div class="px-5 pt-6 pb-8 flex flex-col gap-1.5">
-            <h2 class="title-card mb-2.5 text-xl font-extrabold text-primary">{{ country.name.common }}</h2>
-            <p class="text-accent font-medium">
+            <h2 class="one-line mb-2.5 text-xl font-extrabold text-primary">{{ country.name.common }}</h2>
+            <p class="text-accent font-medium one-line">
               <span class="font-custom_weight text-primary">Population:</span>
               {{ country.population }}
             </p>
-            <p class="text-accent font-medium">
+            <p class="text-accent font-medium one-line">
               <span class="font-custom_weight text-primary">Region:</span> {{ country.region }}
             </p>
-            <p class="text-accent font-medium">
+            <p class="text-accent font-medium one-line">
               <span class="font-custom_weight text-primary">Capital:</span> {{ joinText(country.capital) }}
             </p>
           </div>
@@ -97,7 +97,7 @@ const goToCountryDetail = (country: Country) => {
   transform: scale(2.15);
 }
 
-.title-card {
+.one-line {
   text-transform: capitalize;
   white-space: nowrap;
   overflow: hidden;

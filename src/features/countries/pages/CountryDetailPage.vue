@@ -1,17 +1,15 @@
 <template>
   <section class="bg-custom_bg h-full py-16">
     <div class="container">
-      <button class="bg-secondary custom-shadow rounded-md px-8 py-1.5" @click="router.back" type="button">
+      <button class="bg-secondary custom-shadow rounded-md px-8 py-1.5" @click="router.push('/')" type="button">
         <div class="flex flex-row gap-2.5 items-center">
           <SharpArrrowIcon />
           <span class="text-primary text-base">Back</span>
         </div>
       </button>
-      <div class="mt-16 w-full grid grid-rows-[1f,auto] lg:grid-rows-1 grid-cols-1 lg:grid-cols-[auto,auto] 
+      <div class="mt-16 w-full grid grid-rows-[1fr,auto] lg:grid-rows-1 grid-cols-1 lg:grid-cols-[1fr,1fr] 
         gap-14 lg:gap-8 xl:gap-16 h-full">
-        <figure class="h-[375px] min-w-full lg:w-[425px] min-h-full">
-          <img class="object-fill size-full " :src="currentCountry?.flags.png" />
-        </figure>
+        <img class="object-fill w-full h-[400px] min-h-full" :src="currentCountry?.flags.png" />
         <div class="p-0 lg:p-8 flex flex-col gap-8 justify-center">
           <h2 class="text-primary text-3xl font-extrabold">{{ currentCountry?.name.common }}</h2>
           <div class="flex flex-col sm:flex-row gap-10">
@@ -30,21 +28,21 @@
               </p>
               <p class="text-accent font-medium">
                 <span class="font-custom_weight text-primary">Sub Region:</span>
-                {{ currentCountry?.subregion }}
+                {{ currentCountry?.subregion || 'No Sub Region' }}
               </p>
               <p class="text-accent font-medium">
                 <span class="font-custom_weight text-primary">Capital:</span>
-                {{ joinText(currentCountry?.capital ?? ['No Capital']) }}
+                {{ joinText(currentCountry?.capital?.length ? currentCountry.capital : ['No Capital']) }}
               </p>
             </ul>
             <ul class="flex flex-col flex-1 gap-3">
               <p class="text-accent font-medium">
                 <span class="font-custom_weight text-primary">Top Level Domain:</span>
-                {{ joinText(currentCountry?.tld ?? ['No Av.']) }}
+                {{ joinText(currentCountry?.tld || ['No Av.']) }}
               </p>
               <p class="text-accent font-medium">
                 <span class="font-custom_weight text-primary">Currencies:</span>
-                {{ currencies }}
+                {{ currencies || 'No Currencies' }}
               </p>
               <p class="text-accent font-medium">
                 <span class="font-custom_weight text-primary">Languages:</span>
@@ -56,7 +54,8 @@
             <span class="text-primary text-base font-custom_weight">Border Countries:</span>
             <div class="flex flex-row flex-wrap gap-2.5">
               <template v-if="currentCountry?.borders.length">
-                <button :tooltip="getCountryByCode(border)" flow="down" v-for="(border, index) in currentCountry?.borders" :key="index"
+                <button :tooltip="getCountryByCode(border)" flow="down"
+                  v-for="(border, index) in currentCountry?.borders" :key="index"
                   class="country-border bg-secondary custom-shadow rounded-md px-5 py-1.5" type="button">
                   <div class="flex flex-row gap-2.5 items-center">
                     <span class="text-primary text-sm font-medium">{{ border }}</span>
@@ -80,10 +79,10 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { getCountryByName } from '../service/country.service';
 import { Country } from '../models/country';
-import SharpArrrowIcon from '@/assets/icons/SharpArrrowIcon.vue';
-import router from '@/router/router';
 import { joinText } from '../utils/helpers/format-text';
 import { getCountryByCode } from '../utils/helpers/country-by-code';
+import SharpArrrowIcon from '@/assets/icons/SharpArrrowIcon.vue';
+import router from '@/router/router';
 
 const route = useRoute();
 const countriesStore = useCountriesStore();
@@ -132,6 +131,7 @@ const currencies = computed(() => {
   display: none;
   opacity: 0;
 }
+
 [tooltip]::before {
   content: '';
   border: 5px solid transparent;
@@ -140,7 +140,7 @@ const currencies = computed(() => {
 
 [tooltip]::after {
   content: attr(tooltip);
-  
+
   font-family: Helvetica, sans-serif;
   text-align: center;
   min-width: 3em;
@@ -167,16 +167,18 @@ const currencies = computed(() => {
   border-top-width: 0;
   border-bottom-color: #333;
 }
+
 [tooltip][flow^="down"]::after {
   top: calc(100% + 5px);
 }
+
 [tooltip][flow^="down"]::before,
 [tooltip][flow^="down"]::after {
   left: 50%;
   transform: translate(-50%, .5em);
 }
 
-/* FX All The Things */ 
+/* FX All The Things */
 [tooltip][flow^="down"]:hover::before,
 [tooltip][flow^="down"]:hover::after {
   animation: tooltips-vert 300ms ease-out forwards;
@@ -196,6 +198,4 @@ const currencies = computed(() => {
     transform: translate(0, -50%);
   }
 }
-
-
 </style>

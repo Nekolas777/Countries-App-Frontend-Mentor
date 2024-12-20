@@ -16,7 +16,7 @@
         <button class="h-full">
           <ArrowIcon />
         </button>
-        <div :class="['dropdown-content bg-secondary', { active: isDropdownActive }]">
+        <div :class="['region-dropdown-content bg-secondary', { active: isDropdownActive }]">
           <li @click="changeRegion('africa')" class="dropdown-link text-primary">Africa</li>
           <li @click="changeRegion('america')" class="dropdown-link text-primary">America</li>
           <li @click="changeRegion('asia')" class="dropdown-link text-primary">Asia</li>
@@ -59,27 +59,27 @@ const changeRegion = async(region: string) => {
 };
 
 const fetchCountriesInfo = useDebounce(async () => {
-  if (!search.value) {
+  if (!search.value.trim()) {
     countries.value = countriesStore.countries;
     hasError.value = false;
     return;
   }
 
   try {
-    const result = await getCountryByName(search.value);
+    const result = await getCountryByName(search.value.trim());
     countries.value = result;
     hasError.value = result.length === 0;
   } catch (error) {
     console.error(error);
     hasError.value = true;
   }
-}, 500);
+}, 300);
 
 // watch search value applying debounce
 watch(search, fetchCountriesInfo);
 
 const handleClickOutside = (event: MouseEvent) => {
-  const dropdown = document.querySelector('.dropdown-content');
+  const dropdown = document.querySelector('.region-dropdown-content');
   if (isDropdownActive.value && dropdown && !dropdown.contains(event.target as Node)) {
     isDropdownActive.value = false;
   }
@@ -101,7 +101,7 @@ onUnmounted(() => {
   box-shadow: 0 0px 12px rgba(0, 0, 0, 0.05);
 }
 
-.dropdown-content {
+.region-dropdown-content {
   overflow: hidden;
   position: absolute;
   top: 4rem;
@@ -117,7 +117,7 @@ onUnmounted(() => {
   z-index: 10;
 }
 
-.dropdown-content.active {
+.region-dropdown-content.active {
   opacity: 1;
   transform: scaleY(1);
   visibility: visible;
@@ -137,7 +137,7 @@ onUnmounted(() => {
   background: #f1f1f1;
 }
 
-.dropdown.active .dropdown-content {
+.dropdown.active .region-dropdown-content {
   opacity: 1;
   transform: scaleY(1);
   visibility: visible;
