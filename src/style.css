@@ -23,9 +23,9 @@
   }
 }
 
-* {
+*:not(.country-card:hover) {
   list-style-type: none;
-  transition: background 0.2s linear;
+  transition: background 0.2s linear, border 0.2s linear, opacity 0.2s linear;
 }
 
 body {
@@ -43,9 +43,16 @@ body {
   border: 1px solid red;
 }
 
+.one-line {
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.2s linear;
 }
 
 .fade-enter-from,

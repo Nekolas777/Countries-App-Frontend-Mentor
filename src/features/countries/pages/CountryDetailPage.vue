@@ -1,6 +1,29 @@
 <template>
-  <section class="bg-custom_bg h-full py-16">
-    <div class="container">
+  <section class="bg-custom_bg py-12 sm:py-16 h-full">
+    <div v-if="isLoading" class="flex items-center justify-center size-full">
+      <div class="loader-container">
+        <div class="spinner border-[6px] border-solid border-custom_bg_accent border-b-accent"></div>
+      </div>
+    </div>
+    <div v-else-if="hasError" class="flex items-center justify-center size-full">
+      <div class="error-message">
+        <h1 class="text-[150px] -mb-4 select-none text-center font-extrabold text-accent">
+          404
+        </h1>
+        <p class="text-center text-primary font-extrabold text-2xl">
+          No countries found
+        </p>
+        <p class="text-center mt-5 text-lg text-accent">Do you can't search for a specific <strong>country</strong>?</p>
+        <div class="mt-8 flex items-center justify-center w-full">
+          <a href="https://restcountries.com/" rel="noopener noreferrer" target="_blank" class="rounded flex w-full md:w-fit group items-center gap-4 justify-center border-2 
+            border-custom_bg_accent font-semibold bg-secondary py-3 px-5 capitalize shadow-md 
+            text-primary transition-all duration-200 ease-linear hover:-translate-y-0.5">
+            Read the API docs
+          </a>
+        </div>
+      </div>
+    </div>
+    <div v-else class="container">
       <button class="bg-secondary custom-shadow rounded-md px-8 py-1.5" @click="router.push('/')" type="button">
         <div class="flex flex-row gap-2.5 items-center">
           <SharpArrrowIcon />
@@ -9,10 +32,10 @@
       </button>
       <div class="mt-16 w-full grid grid-rows-[1fr,auto] lg:grid-rows-1 grid-cols-1 lg:grid-cols-[1fr,1fr] 
         gap-14 lg:gap-8 xl:gap-16 h-full">
-        <img class="object-fill w-full h-[400px] min-h-full" :src="currentCountry?.flags.png" />
+        <img class="object-fill w-full h-[275px] xs:h-[375px] min-h-full" :src="currentCountry?.flags.png" />
         <div class="p-0 lg:p-8 flex flex-col gap-8 justify-center">
           <h2 class="text-primary text-3xl font-extrabold">{{ currentCountry?.name.common }}</h2>
-          <div class="flex flex-col sm:flex-row gap-10">
+          <div class="flex flex-col sm:flex-row gap-14">
             <ul class="flex flex-col flex-1 gap-3">
               <p class="text-accent font-medium">
                 <span class="font-custom_weight text-primary">Oficial Name:</span>
@@ -54,7 +77,7 @@
             <span class="text-primary text-base font-custom_weight">Border Countries:</span>
             <div class="flex flex-row flex-wrap gap-2.5">
               <template v-if="currentCountry?.borders.length">
-                <button :tooltip="getCountryByCode(border)" flow="down"
+                <button @click="searchCountryByCode(border)" :tooltip="getCountryByCode(border)" flow="down"
                   v-for="(border, index) in currentCountry?.borders" :key="index"
                   class="country-border bg-secondary custom-shadow rounded-md px-5 py-1.5" type="button">
                   <div class="flex flex-row gap-2.5 items-center">
@@ -77,7 +100,7 @@
 import { useCountriesStore } from '@/store/countries';
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
-import { getCountryByName } from '../service/country.service';
+import { getCountryByAlphaCode, getCountryByName } from '../service/country.service';
 import { Country } from '../models/country';
 import { joinText } from '../utils/helpers/format-text';
 import { getCountryByCode } from '../utils/helpers/country-by-code';
@@ -87,18 +110,13 @@ import router from '@/router/router';
 const route = useRoute();
 const countriesStore = useCountriesStore();
 const currentCountry = ref<Country | null>(null);
-
-onMounted(async () => {
-  if (!countriesStore.countries.length) {
-    const countries = await getCountryByName(route.params.name.toString());
-    currentCountry.value = countries[0];
-  } else {
-    currentCountry.value = countriesStore.selectedCountry;
-  }
-});
+const hasError = ref<boolean>(false);
+const isLoading = ref<boolean>(false);
 
 const languages = computed(() => {
-  return currentCountry.value ? Object.values(currentCountry.value.languages).join(', ') : 'No Languages';
+  return currentCountry.value ?
+    Object.values(currentCountry.value.languages).join(', ')
+    : 'No Languages';
 });
 
 const currencies = computed(() => {
@@ -107,6 +125,39 @@ const currencies = computed(() => {
       .map(currency => `${currency.name}`)
       .join(', ')
     : 'No Currencies';
+});
+
+const searchCountryByCode = async(code: string) => {
+  isLoading.value = true;
+  hasError.value = false;
+  try {
+    const country = await getCountryByAlphaCode(code);
+    currentCountry.value = country;
+    countriesStore.setSelectedCountry(country);
+    router.replace(`/countries/${getCountryByCode(code)}/information`);
+  } catch (error) {
+    hasError.value = true;
+  } finally {
+    isLoading.value = false;
+  }
+};
+
+onMounted(async () => {
+  if (!countriesStore.countries.length || !countriesStore.selectedCountry) {
+    hasError.value = false;
+    isLoading.value = true;
+    try {
+      const countries = await getCountryByName(route.params.name.toString());
+      isLoading.value = false;
+      currentCountry.value = countries[0];
+    } catch (error) {
+      hasError.value = true;
+    } finally {
+      isLoading.value = false;
+    }
+  } else {
+    currentCountry.value = countriesStore.selectedCountry;
+  }
 });
 
 </script>
@@ -184,6 +235,14 @@ const currencies = computed(() => {
   animation: tooltips-vert 300ms ease-out forwards;
 }
 
+/* spinenr styles */
+.spinner {
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: rotate 1s linear infinite;
+}
+
 /* animaciones */
 @keyframes tooltips-vert {
   to {
@@ -196,6 +255,16 @@ const currencies = computed(() => {
   to {
     opacity: .9;
     transform: translate(0, -50%);
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
   }
 }
 </style>
