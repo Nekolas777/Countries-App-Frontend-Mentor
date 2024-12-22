@@ -1,8 +1,8 @@
 <template>
-  <section class="container py-16">
-    <div class="flex flex-row justify-between h-14 gap-8">
+  <section class="container py-12 sm:py-16 h-full">
+    <div class="flex flex-col xs:flex-row justify-between gap-6 lg:gap-8">
       <form @submit.prevent
-        class="bg-secondary flex items-center w-full max-w-[500px] rounded-md custom-shadow overflow-hidden"
+        class="bg-secondary flex items-center py-4 w-full max-w-[500px] rounded-md custom-shadow overflow-hidden"
         autocomplete="off">
         <button class="h-full px-4">
           <SearchIcon />
@@ -10,9 +10,9 @@
         <input v-model="search" type="text" class="w-full h-full pr-4 bg-secondary text-primary outline-none"
           placeholder="Search for a country..." />
       </form>
-      <div @click="toggleDropdown()" class="relative bg-secondary flex flex-row items-center justify-between px-5 w-[250px] gap-4 
+      <div @click="toggleDropdown()" class="relative w-full bg-secondary flex flex-row items-center py-4 justify-between px-5 xs:w-[250px] gap-4 
         rounded-md custom-shadow cursor-pointer">
-        <span class="w-full h-full bg-secondary text-primary font-medium flex items-center">{{ capitalizeText(regionState ?? 'Filter by type') }}</span>
+        <span class="w-full h-full bg-secondary text-primary font-medium flex items-center one-line">{{ capitalizeText(regionState ?? 'Filter by type') }}</span>
         <button class="h-full">
           <ArrowIcon />
         </button>
@@ -41,7 +41,7 @@ import { getCountriesByRegion, getCountryByName } from '../service/country.servi
 import { capitalizeText } from '../utils/helpers/format-text';
 
 const countriesStore = useCountriesStore();  
-const search = ref('');
+const search = ref<string>('');
 const countries = ref<Country[]>([]);
 const hasError = ref<boolean>(false);
 

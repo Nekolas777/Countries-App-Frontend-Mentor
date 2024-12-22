@@ -49,3 +49,14 @@ export const getCountryByName = async(name: string): Promise<Country[]> => {
   }
 
 }
+
+export const getCountryByAlphaCode = async(code: string): Promise<Country> => {
+
+  try {
+    const response = await axiosInstance.get(`/alpha/${code}?fields=${requireFields}`);
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

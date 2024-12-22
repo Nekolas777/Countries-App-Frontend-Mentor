@@ -16,10 +16,11 @@
         </a>
       </div>
     </div>
-    <div v-else class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-16">
-      <div v-for="(country, index) in countries" id="country" :key="index">
-        <article @click="goToCountryDetail(country)"
-          class="country-card block relative bg-secondary shadow-md rounded-md overflow-hidden">
+    <div v-else class="country-container grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 xl:gap-16">
+      <div v-for="(country, index) in countries" :key="index" id="country">
+        <article @click="goToCountryDetail(country)" :class="['country-card block relative bg-secondary shadow-md rounded-md overflow-hidden', {
+          'reveal': shouldReveal(index),
+        }]">
           <img v-lazy="{
             src: country.flags.png,
             loading: 'https://cdn.dribbble.com/users/8424/screenshots/1036999/dots_2.gif',
@@ -50,6 +51,7 @@ import { Country } from '../models/country';
 import { joinText } from '../utils/helpers/format-text';
 import { useCountriesStore } from '@/store/countries';
 import router from '@/router/router';
+import { onMounted, onUnmounted, ref } from 'vue';
 
 const { countries, hasError } = defineProps<{
   countries: Country[];
@@ -57,6 +59,7 @@ const { countries, hasError } = defineProps<{
 }>();
 
 const countriesStore = useCountriesStore();
+const itemsPerRow = ref<number>(1);
 
 const goToCountryDetail = (country: Country) => {
   countriesStore.setSelectedCountry(country);
@@ -64,6 +67,29 @@ const goToCountryDetail = (country: Country) => {
     path: `/countries/${country.name.common}/information`,
   });
 };
+
+const updateItemsPerRow = () => {
+  if (window.innerWidth >= 1280) {
+    itemsPerRow.value = 4;
+  } else if (window.innerWidth >= 768) {
+    itemsPerRow.value = 2;
+  } else {
+    itemsPerRow.value = 1;
+  }
+};
+
+const shouldReveal = (index: number) => {
+  return Math.floor(index / itemsPerRow.value) >= 2;
+};
+
+onMounted(() => {
+  updateItemsPerRow();
+  window.addEventListener('resize', updateItemsPerRow);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', updateItemsPerRow);
+});
 </script>
 
 <style scoped>
@@ -97,10 +123,23 @@ const goToCountryDetail = (country: Country) => {
   transform: scale(2.15);
 }
 
-.one-line {
-  text-transform: capitalize;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.country-card.reveal {
+  animation: scrollReveal ease-in-out;
+  animation-duration: 2s;
+  animation-timeline: view();
+  animation-fill-mode: backwards;
+  animation-range: entry 0% cover 30%;
+}
+
+@keyframes scrollReveal {
+  from {
+    opacity: 0;
+    scale: 0.5;
+  }
+
+  to {
+    opacity: 1;
+    scale: 1;
+  }
 }
 </style>
