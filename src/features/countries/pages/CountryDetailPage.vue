@@ -11,16 +11,16 @@
           404
         </h1>
         <p class="text-center text-primary font-extrabold text-2xl">
-          No countries found
+          Country <strong class="text-accent">"{{ route.params.name }}"</strong> not found
         </p>
-        <p class="text-center mt-5 text-lg text-accent">Do you can't search for a specific <strong>country</strong>?</p>
-        <div class="mt-8 flex items-center justify-center w-full">
-          <a href="https://restcountries.com/" rel="noopener noreferrer" target="_blank" class="rounded flex w-full md:w-fit group items-center gap-4 justify-center border-2 
+        <p class="text-center mt-5 text-lg text-accent">Sorry, an error has occurred, requested country not found</p>
+        <div @click="router.push('/')" class="cursor-pointer mt-8 flex items-center justify-center w-full">
+        <span class="rounded flex w-full md:w-fit group items-center gap-4 justify-center border-2 
             border-custom_bg_accent font-semibold bg-secondary py-3 px-5 capitalize shadow-md 
             text-primary transition-all duration-200 ease-linear hover:-translate-y-0.5">
-            Read the API docs
-          </a>
-        </div>
+          Go back to home
+        </span>
+      </div>
       </div>
     </div>
     <div v-else class="container">
@@ -235,14 +235,6 @@ onMounted(async () => {
   animation: tooltips-vert 300ms ease-out forwards;
 }
 
-/* spinenr styles */
-.spinner {
-  border-radius: 50%;
-  width: 60px;
-  height: 60px;
-  animation: rotate 1s linear infinite;
-}
-
 /* animaciones */
 @keyframes tooltips-vert {
   to {
@@ -255,16 +247,6 @@ onMounted(async () => {
   to {
     opacity: .9;
     transform: translate(0, -50%);
-  }
-}
-
-@keyframes rotate {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  100% {
-    transform: rotate(360deg);
   }
 }
 </style>

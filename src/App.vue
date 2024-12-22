@@ -3,7 +3,7 @@
     <AppBar />
     <main class="bg-custom_bg">
       <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in" @after-leave="$root!.$emit('triggerScroll')">
+        <transition name="fade" mode="out-in" :duration="150" @after-leave="$root!.$emit('triggerScroll')">
           <component :is="Component" />
         </transition>
       </router-view>

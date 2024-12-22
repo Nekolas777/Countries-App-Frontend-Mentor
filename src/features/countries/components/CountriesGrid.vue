@@ -1,6 +1,11 @@
 <template>
   <div class="mt-12">
-    <div v-if="hasError" class="error-message">
+    <div v-if="isLoading" class="flex items-center justify-center size-full pt-5">
+      <div class="loader-container">
+        <div class="spinner border-[6px] border-solid border-custom_bg_accent border-b-accent"></div>
+      </div>
+    </div>
+    <div v-else-if="hasError" class="error-message">
       <h1 class="text-[150px] -mb-4 select-none text-center font-extrabold text-accent">
         404
       </h1>
@@ -18,7 +23,7 @@
     </div>
     <div v-else class="country-container grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 xl:gap-16">
       <div v-for="(country, index) in countries" :key="index" id="country">
-        <article @click="goToCountryDetail(country)" :class="['country-card block relative bg-secondary shadow-md rounded-md overflow-hidden', {
+        <article @click="goToCountryDetail(country)" :class="['country-card block relative bg-secondary shadow-md rounded-md overflow-hidden fade-in', {
           'reveal': shouldReveal(index),
         }]">
           <img v-lazy="{
@@ -56,6 +61,7 @@ import { onMounted, onUnmounted, ref } from 'vue';
 const { countries, hasError } = defineProps<{
   countries: Country[];
   hasError: boolean;
+  isLoading: boolean;
 }>();
 
 const countriesStore = useCountriesStore();
@@ -129,6 +135,19 @@ onUnmounted(() => {
   animation-timeline: view();
   animation-fill-mode: backwards;
   animation-range: entry 0% cover 30%;
+}
+
+.fade-in {
+  animation: fadeIn 0.25s linear;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scrollReveal {

@@ -25,7 +25,7 @@
         </div>
       </div>
     </div>
-    <CountriesGrid :countries="countries" :has-error="hasError" />
+    <CountriesGrid :countries="countries" :has-error="hasError" :is-loading="isLoading"/>
   </section>
 </template>
 
@@ -44,6 +44,7 @@ const countriesStore = useCountriesStore();
 const search = ref<string>('');
 const countries = ref<Country[]>([]);
 const hasError = ref<boolean>(false);
+const isLoading = ref<boolean>(false);
 
 const isDropdownActive = ref<boolean>(false);
 const regionState = ref<string | null>(null);
@@ -54,14 +55,26 @@ const toggleDropdown = () => {
 };
 
 const changeRegion = async(region: string) => {
-  countries.value = await getCountriesByRegion(region);
-  regionState.value = region;
+  isLoading.value = true;
+  try {
+    countries.value = await getCountriesByRegion(region);
+    regionState.value = region;
+  } catch (error) {
+    console.error(error);
+    hasError.value = true;
+  } finally {
+    isLoading.value = false;
+    isDropdownActive.value = false;
+  }
 };
 
 const fetchCountriesInfo = useDebounce(async () => {
+  isLoading.value = true;
+
   if (!search.value.trim()) {
     countries.value = countriesStore.countries;
     hasError.value = false;
+    isLoading.value = false;
     return;
   }
 
@@ -72,6 +85,8 @@ const fetchCountriesInfo = useDebounce(async () => {
   } catch (error) {
     console.error(error);
     hasError.value = true;
+  } finally {
+    isLoading.value = false;
   }
 }, 300);
 
@@ -86,8 +101,13 @@ const handleClickOutside = (event: MouseEvent) => {
 };
 
 onMounted(async () => {
-  await countriesStore.fetchCountries();
-  countries.value = countriesStore.countries;
+  try {
+    await countriesStore.fetchCountries();
+    countries.value = countriesStore.countries;
+  } catch (error) {
+    console.error(error);
+    hasError.value = true;
+  }
   document.addEventListener('click', handleClickOutside);
 });
 
